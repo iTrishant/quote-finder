@@ -25,12 +25,11 @@ try:
     if user_input:
         input_clean = user_input.lower().strip()
         known_tags = set(mlb.classes_)
-
+        emb = embedder.encode([user_input])
         if input_clean in known_tags:
             matched_df = df[df["predicted_tags"].apply(lambda tags: input_clean in tags)]
             st.success(f"Found {len(matched_df)} quotes with tag: '{input_clean}'")
         else:
-            emb = embedder.encode([user_input])
             scores = svm_model.decision_function(emb)
             top_indices = np.argsort(scores[0])[-3:]
             predicted = mlb.inverse_transform(np.array([[1 if i in top_indices else 0 for i in range(len(scores[0]))]]))[0]
