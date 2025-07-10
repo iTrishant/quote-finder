@@ -19,6 +19,10 @@ df, svm_model, mlb, embedder = load_resources()
 st.title("🧠 Philosopher Quote Finder")
 st.write("Describe how you feel or what you’re going through, and get wisdom from history’s greatest minds.")
 
+authors = sorted(df["author"].unique().tolist())
+selected_authors = st.multiselect("🔍 Filter by specific philosophers (optional):", authors)
+unique_authors_only = st.checkbox("Show quotes from different authors only", value=True)
+
 user_input = st.text_input("What are you feeling or searching for?", "")
 
 try:
@@ -39,16 +43,22 @@ try:
                 matched_df = df[df["predicted_tags"].apply(lambda tags: any(tag in tags for tag in predicted))]
             else:
                 matched_df = pd.DataFrame()
-
+                
+        if selected_authors:
+            matched_df = matched_df[matched_df["author"].isin(selected_authors)]
+            
         if matched_df.empty:
             st.warning("No matching quotes found. Try a different word.")
+            
         else:
             st.subheader("✨ Recommended Quotes")
             quote_vecs = embedder.encode(matched_df["quote"].tolist(), batch_size=64)
             sim_scores = np.dot(quote_vecs, emb.T).flatten()
             matched_df["similarity"] = sim_scores
-            top_quotes = matched_df.sort_values("similarity", ascending=False).head(5)
-
+            sorted_df = matched_df.sort_values("similarity", ascending=False)
+            if unique_authors_only:
+                sorted_df = sorted_df.drop_duplicates(subset="author")
+            top_quotes = sorted_df.head(5)
             for _, row in top_quotes.iterrows():
                 st.markdown(f"> *{row['quote']}* — **{row['author']}**")
 except Exception as e:
