@@ -52,12 +52,16 @@ try:
         emb = embedder.encode([user_input], convert_to_numpy=True)
         faiss.normalize_L2(emb)
 
-        D, I = faiss_index.search(emb, k=20)  
+        k = min(20, faiss_index.ntotal)
+        D, I = faiss_index.search(emb, k)  
         results = []
         for score, idx in zip(D[0], I[0]):
-            quote = quotes[idx]
-            author = authors[idx]
-            results.append({"quote": quote, "author": author, "similarity": float(score)})
+            if idx < len(quotes):
+                results.append({
+                    "quote": quotes[idx],
+                    "author": authors[idx],
+                    "similarity": float(score)
+                })
 
         results_df = pd.DataFrame(results)
 
