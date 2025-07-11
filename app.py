@@ -56,7 +56,7 @@ try:
         D, I = faiss_index.search(emb, k)  
         results = []
         for score, idx in zip(D[0], I[0]):
-            if idx < len(quotes):
+            if 0 <= idx < len(quotes):
                 results.append({
                     "quote": quotes[idx],
                     "author": authors[idx],
