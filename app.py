@@ -31,8 +31,8 @@ df, embedder, faiss_index, quotes, authors = load_resources()
 st.title("🧠 MiniLM-Powered Quote Finder")
 st.write("Describe how you feel or what you’re going through, and get wisdom from history’s greatest minds.")
 
-authors = sorted(df["author"].unique().tolist())
-selected_authors = st.multiselect("🔍 Filter by author:", authors)
+all_authors = sorted(set(authors))
+selected_authors = st.multiselect("🔍 Filter by author:", all_authors)
 unique_authors_only = st.checkbox("Show quotes from different authors only", value=True)
 
 user_input = st.text_input("What are you feeling or searching for?", "")
@@ -46,7 +46,6 @@ def retrieve_quotes(text: str, k: int = 5) -> List[Tuple[str, str, float]]:
 try:
     if user_input:
         input_clean = user_input.lower().strip()
-
         st.subheader("✨ Recommended Quotes")
 
         emb = embedder.encode([user_input], convert_to_numpy=True)
