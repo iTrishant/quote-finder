@@ -11,7 +11,7 @@ st.set_page_config(page_title="MiniLM-Powered Quote Finder", page_icon="🧠")
 @st.cache_resource
 def load_resources():
     df = pd.read_csv("philosopher_quotes_top3_labeled.csv")
-    embedder = SentenceTransformer("./miniLM-pos-neg")
+    embedder = SentenceTransformer("minilm-pos-neg")
     quotes = df["quote"].tolist()
     authors = df["author"].tolist()
     embeddings = embedder.encode(quotes, batch_size=64, convert_to_numpy=True)
